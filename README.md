@@ -1,6 +1,6 @@
 # RoundTable-Presentation_EmilyTran
 
-[Presentation] (https://docs.google.com/presentation/d/1Mskvx7CuQ31eirbgyJ80rAgNuQ79WE8yU79a5ScdEvA/edit?usp=sharing)
+[Presentation](https://docs.google.com/presentation/d/1Mskvx7CuQ31eirbgyJ80rAgNuQ79WE8yU79a5ScdEvA/edit?usp=sharing)
 
 Links
 
