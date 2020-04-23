@@ -1,0 +1,146 @@
+//Used p5.play library that is accessible in OpenProcessing
+
+let dad, kid;
+let hit = false;
+let sideboundary, verticalboundary;
+let xdirection=1;
+
+class Father {
+	constructor(x, y, h, w) {
+		this.x = x;
+		this.y = y;
+		this.height = h;
+		this.width = w;
+
+		this.r = int(random(255));
+		this.g = int(random(255));
+		this.b = int(random(255));
+		this.skin = color(this.r, this.g, this.b);
+	}
+
+	display() {
+		fill(this.skin);
+		rect(this.x, this.y, this.height, this.width);
+	}
+
+	hiding() {
+		tt = 0;
+	}
+
+}
+
+
+class Kid {
+	constructor(x, y, size) {
+		this.x = x;
+		this.y = y;
+		this.size = size;
+
+		this.r = int(random(255));
+		this.g = int(random(255));
+		this.b = int(random(255));
+		this.skin = color(this.r, this.g, this.b);
+	}
+
+	display() {
+		fill(this.skin);
+		square(this.x, this.y, this.size);
+
+	}
+
+	bouncesidemove() {
+		this.x=this.x+((1)*xdirection); //reversal of direction when touch wall
+		if (this.x > sideboundary-this.size || this.x < 0) {
+			xdirection *= -1;
+		}
+	}
+
+	bounceverticalmove() {
+		if (this.y <= verticalboundary) {
+			this.y++;
+		} else if (this.y >= (-1 * verticalboundary)) {
+			this.y--;
+		}
+	}
+
+	patrolmove() {
+		if (this.x <= sideboundary) {
+			this.x++;
+		} else {
+			this.x = 0
+		}
+	}
+
+	backforthmove() {
+		//LOOKLEFT
+		//import left sprite
+		//LOOKRIGHT
+		//import right sprite
+	}
+
+	locked() {
+		this.x = 350;
+		this.y = 350;
+	}
+}
+
+
+
+function setup() {
+	createCanvas(400, 400);
+	background(100);
+	frameRate(120);
+
+	//maze setup
+	sideboundary = 400;
+	verticalboundary = 400;
+
+	//character setup
+	Children = [];
+	dad = new Father(mouseX, mouseY, 25, 100);
+
+	kid1 = new Kid(300, 0, 25);
+	kid2 = new Kid(100, 100, 25);
+
+
+}
+
+function draw() {
+	background(100);
+
+	kid1.display();
+	kid2.display();
+	kida=kid1.bouncesidemove();
+	kidb=kid2.bouncesidemove();
+	dad.display();
+
+	//Dad movement
+	if (keyIsDown(LEFT_ARROW)) {
+		dad.x -= 5;
+	}
+	if (keyIsDown(RIGHT_ARROW)) {
+		dad.x += 5;
+	}
+	if (keyIsDown(UP_ARROW)) {
+		dad.y -= 5;
+	} else if (keyIsDown(DOWN_ARROW)) {
+		dad.y += 5;
+	}
+
+	//capture mechanics
+	// if (dad(collide(kid1)))
+	// 	kid1.locked();
+}
+
+
+// function keyIsDown() {
+// 	if (keyCode === LEFT_ARROW)
+// 		dad.x -= 4;
+// 	if (keyCode === RIGHT_ARROW)
+// 		dad.x += 4;
+// 	if (keyCode === UP_ARROW) {
+// 		dad.y -= 4;
+// 	} else if (keyCode === DOWN_ARROW) {
+// 		dad.y += 4;
+// 	}
+// }
