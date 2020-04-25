@@ -1,14 +1,15 @@
 //Used p5.play library that is accessible in OpenProcessing
 
 let dad, kid;
+let Children = [];
 let hit = false;
 let sideboundary, verticalboundary;
-let xdirection=1;
+let xdirection = 1;
 
 class Father {
 	constructor(x, y, h, w) {
-		this.x = x;
-		this.y = y;
+		this.x = random(x); //random location
+		this.y = random(y);
 		this.height = h;
 		this.width = w;
 
@@ -49,8 +50,8 @@ class Kid {
 	}
 
 	bouncesidemove() {
-		this.x=this.x+((1)*xdirection); //reversal of direction when touch wall
-		if (this.x > sideboundary-this.size || this.x < 0) {
+		this.x = this.x + ((1) * xdirection); //reversal of direction when touch wall
+		if (this.x > sideboundary - this.size || this.x < 0) {
 			xdirection *= -1;
 		}
 	}
@@ -96,23 +97,32 @@ function setup() {
 	verticalboundary = 400;
 
 	//character setup
-	Children = [];
+	for (let i = 0; i < 5; i++) { //create 5 kids on the screen per level
+		Children.push(new Kid(random(sideboundary), random(verticalboundary), 25));
+	}
 	dad = new Father(mouseX, mouseY, 25, 100);
-
-	kid1 = new Kid(300, 0, 25);
-	kid2 = new Kid(100, 100, 25);
-
 
 }
 
 function draw() {
 	background(100);
 
-	kid1.display();
-	kid2.display();
-	kida=kid1.bouncesidemove();
-	kidb=kid2.bouncesidemove();
-	dad.display();
+	for (let i = 0; i < Children.length; i++) { //randomize the movement
+		Children[i].display();
+		Children[i].Movementchoice = random(3);
+		if (Children[i].Movementchoice % 1){
+		Children[i].bouncesidemove();
+		} else if (Children[i].Movementchoice % 2){
+		Children[i].bounceverticalmove();
+		} else{
+		Children[i].patrolmove();
+		}
+	}
+	// 	kid1.display();
+	// 	kid2.display();
+	// 	kida = kid1.bouncesidemove();
+	// 	kidb = kid2.bouncesidemove();
+	// 	dad.display();
 
 	//Dad movement
 	if (keyIsDown(LEFT_ARROW)) {
