@@ -2,9 +2,14 @@
 
 let dad, kid;
 let Children = [];
-let hit = false;
+let Vertical = [];
+let Horizontal = [];
+let Patrol = [];
+let catching = false;
 let sideboundary, verticalboundary;
 let xdirection = 1;
+let ydirection = 1;
+let maze;
 
 class Father {
 	constructor(x, y, h, w) {
@@ -25,7 +30,7 @@ class Father {
 	}
 
 	hiding() {
-		tt = 0;
+		//if collide with spot, sprite changes, and if kid is on it, capture=true
 	}
 
 }
@@ -57,14 +62,13 @@ class Kid {
 	}
 
 	bounceverticalmove() {
-		if (this.y <= verticalboundary) {
-			this.y++;
-		} else if (this.y >= (-1 * verticalboundary)) {
-			this.y--;
+		this.y = this.y + ((1) * ydirection); //reversal of direction when touch wall
+		if (this.y > verticalboundary - this.size || this.y < 0) {
+			ydirection *= -1;
 		}
 	}
 
-	patrolmove() {
+	patrollermove() {
 		if (this.x <= sideboundary) {
 			this.x++;
 		} else {
@@ -91,38 +95,57 @@ function setup() {
 	createCanvas(400, 400);
 	background(100);
 	frameRate(120);
+	
+	//movements
+	movements=[1,2,3];
 
 	//maze setup
 	sideboundary = 400;
 	verticalboundary = 400;
+	maze = 1; //first level start
+	totalKids=10; // limit the kid goal
 
 	//character setup
-	for (let i = 0; i < 5; i++) { //create 5 kids on the screen per level
+	for (let i = 0; i < totalKids; i++) { //create 5 kids on the screen per level
 		Children.push(new Kid(random(sideboundary), random(verticalboundary), 25));
+		Children[i].choice = int(random(1,4)); //asign movement beforehand
+		
+		if (Children[i].choice == 1){
+		Vertical.push(Children[i]);
+		} else if (Children[i].choice == 2){
+		Horizontal.push(Children[i]);
+		} else{
+		Patrol.push(Children[i]);
+		}
 	}
-	dad = new Father(mouseX, mouseY, 25, 100);
+	dad = new Father(0,0, 25, 100);
 
 }
 
 function draw() {
 	background(100);
 
-	for (let i = 0; i < Children.length; i++) { //randomize the movement
+	//Sprite setup
+	// drawSprites();
+	
+	//children movement
+	for (let i = 0; i < Children.length; i++) {
 		Children[i].display();
-		Children[i].Movementchoice = random(3);
-		if (Children[i].Movementchoice % 1){
-		Children[i].bouncesidemove();
-		} else if (Children[i].Movementchoice % 2){
-		Children[i].bounceverticalmove();
-		} else{
-		Children[i].patrolmove();
 		}
-	}
-	// 	kid1.display();
-	// 	kid2.display();
-	// 	kida = kid1.bouncesidemove();
-	// 	kidb = kid2.bouncesidemove();
-	// 	dad.display();
+	for (let i = 0; i < Horizontal.length; i++) {
+		Horizontal[i].bouncesidemove();
+		}
+	for (let i = 0; i < Vertical.length; i++) {
+		Vertical[i].bounceverticalmove();
+		}
+	for (let i = 0; i < Patrol.length; i++) {
+		Patrol[i].patrollermove();
+		}
+	
+
+	// kida = Children[1].bounceverticalmove();	
+	// kidb = Children[2].bouncesidemove();
+		dad.display();
 
 	//Dad movement
 	if (keyIsDown(LEFT_ARROW)) {
