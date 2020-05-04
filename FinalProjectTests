@@ -24,13 +24,16 @@ function preload() {
 function setup() {
 
 	background('gray');
-	createCanvas(width, height);
+	createCanvas(windowWidth, windowHeight);
 	frameRate(120);
 
 
 	//maze setup
-	sideboundary = width - 50; //prevents stuckage
-	verticalboundary = height - 50;
+	sideboundary = width - 50 -width/4; //prevents stuckage
+	verticalboundary = height - height/10;
+	
+	
+
 
 
 	//movement assignment
@@ -45,10 +48,21 @@ function setup() {
 		} else {
 			Patrol.push(Children[i]);
 		}
+
+		dad = new Father(0, 0, 25, 100);
 	}
 
-	dad = new Father(0, 0, 25, 100);
+}
+
+
+function draw() {
+
+	//Drawing
+	background('gray');
 	dad.display();
+	makesprites();
+
+	
 
 	//Dad movement
 	if (keyIsDown(LEFT_ARROW)) {
@@ -66,7 +80,7 @@ function setup() {
 
 	//children movement
 	for (let i = 0; i < Children.length; i++) {
-		Children[i].displayer();
+		Children[i].display();
 	}
 	for (let i = 0; i < Horizontal.length; i++) {
 		Horizontal[i].bouncesidemove();
@@ -77,10 +91,18 @@ function setup() {
 	for (let i = 0; i < Patrol.length; i++) {
 		Patrol[i].patrollermove();
 	}
+	
+	//BOTTOM SCOREBOARD
+	//catchpen 
+	fill(255);
+	stroke('black');
+	strokeWeight(5);
+	catcherPen = rect(width-(width/4), height-(height/10), width/4-5,height/10-5);
+	
+	//caught
+
+
 }
-
-
-
 
 class Father {
 	constructor(x, y, h, w) {
@@ -110,6 +132,8 @@ class Father {
 
 
 }
+
+
 class Kid {
 	constructor(xx, yy, size) {
 		this.x = xx;
@@ -122,7 +146,7 @@ class Kid {
 		this.skin = color(this.r, this.g, this.b);
 	}
 
-	displayer() {
+	display() {
 		fill(this.skin);
 		square(this.x, this.y, this.size);
 
@@ -137,7 +161,7 @@ class Kid {
 
 	bounceverticalmove() {
 		this.y = this.y + ((1) * ydirection); //reversal of direction when touch wall
-		if (this.y > height - this.size || this.y < 0) {
+		if (this.y > height - this.size-100 || this.y < 0) {
 			ydirection *= -1;
 		}
 	}
@@ -150,3 +174,24 @@ class Kid {
 		}
 	}
 }
+function makesprites() {
+	kidsprites = new Group();
+
+}
+
+function allkidscaught() {
+	switch (maze) {
+		case 1:
+			if (count == LevelOneKids.length) {}
+			break;
+case 2:
+			if (count == LevelTwoKids.length) {}
+			break;
+
+case 3:
+			if (count == LevelThreeKids.length) {}
+			break;
+	}
+}
+
+
