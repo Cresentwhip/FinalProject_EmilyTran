@@ -6,12 +6,16 @@ let Patrol = [];
 let sideboundary, verticalboundary;
 let xdirection = 1;
 let ydirection = 1;
-let maze;
+let kidsCaught;
+let levelOneKids = [];
+let levelTwoKids = [];
+let levelThreeKids = [];
+let obstacles, walls;
 
-//STARTING COMPONENTS
-let levelmaze = 1; //start at 1
-let kidcount = 0; //start with 0 kids picked up
-let success = false;
+//Maze Options
+let totalLevelWalls = 10;
+let levelsTotal = 3;
+
 
 //GOALS
 let totalKids = 15; //max kids to pick up
@@ -27,20 +31,24 @@ function setup() {
 	createCanvas(windowWidth, windowHeight);
 	frameRate(120);
 
+	//Starting components
+	kidsCaught = 0; //start with 0 kids picked up
+	levelmaze = 1; //start at level 1
 
 	//maze setup
-	sideboundary = width - 50 -width/4; //prevents stuckage
-	verticalboundary = height - height/10;
-	
-	
+	sideboundary = width - 50 - width / 4; //prevents stuckage
+	verticalboundary = height - height / 10;
+	addMaze();
 
 
 
-	//movement assignment
+	//movement & level assignment
 	for (let i = 0; i < totalKids; i++) { //create  kids on the screen per level
-		Children.push(new Kid(random(sideboundary), random(verticalboundary), 25));
+		Children.push(new Kid(random(50, sideboundary), random(70, verticalboundary - 40), 25));
 		Children[i].choice = int(random(1, 4)); //asign movement beforehand
+		Children[i].levelAssignment = int(random(1, 4)); //asign movement beforehand
 
+		//MOVEMENT
 		if (Children[i].choice == 1) {
 			Vertical.push(Children[i]);
 		} else if (Children[i].choice == 2) {
@@ -49,60 +57,92 @@ function setup() {
 			Patrol.push(Children[i]);
 		}
 
-		dad = new Father(0, 0, 25, 100);
+		//LEVEL
+		if (Children[i].levelAssignment == 1) {
+			levelOneKids.push(Children[i]);
+		} else if (Children[i].levelAssignment == 2) {
+			levelTwoKids.push(Children[i]);
+		} else {
+			levelThreeKids.push(Children[i]);
+		}
+
+		dad = new Father(0, 0, 25, 100); //draw father sprite
 	}
 
 }
 
-
 function draw() {
+// 	switch (kidsCaught) {
+// 		case levelOneKids.length:
+// 			addMaze();
+
+// 			makesprites();
+// 			checkKids();
+// 			break;
+// 		case levelTwoKids.length:
+// 			addMaze();
+// 			makesprites();
+
+// 			checkKids();
+// 			break;
+// 		case levelThreeKids.length:
+// 			addMaze();
+// 			makesprites();
+
+// 			checkKids();
+// 			break;
+
+// 		case totalKids:
+// 			congratsScreen();
+// 			break;
+// 		default:
+
+// 	}
+
+
 
 	//Drawing
 	background('gray');
 	dad.display();
-	makesprites();
-
-	
-
-	//Dad movement
-	if (keyIsDown(LEFT_ARROW)) {
-		dad.x -= 5;
-	}
-	if (keyIsDown(RIGHT_ARROW)) {
-		dad.x += 5;
-	}
-	if (keyIsDown(UP_ARROW)) {
-		dad.y -= 5;
-	} else if (keyIsDown(DOWN_ARROW)) {
-		dad.y += 5;
-	}
+	// makesprites();
 
 
-	//children movement
+	dadMovements();
+	kidMovements();
+
 	for (let i = 0; i < Children.length; i++) {
-		Children[i].display();
+		if (dad.hit(Children[i]) == true) {
+			kidsCaught++;
+		}
 	}
-	for (let i = 0; i < Horizontal.length; i++) {
-		Horizontal[i].bouncesidemove();
-	}
-	for (let i = 0; i < Vertical.length; i++) {
-		Vertical[i].bounceverticalmove();
-	}
-	for (let i = 0; i < Patrol.length; i++) {
-		Patrol[i].patrollermove();
-	}
-	
+
+// 	if (kidsCaught == levelOneKids){
+// 	// dad.overlap(Children, kidIsCaught);
+// 	}
+
+	drawSprites();
+	// if (dad.collide(Children,)) { //if kid collides with dad
+	// 		kidsCaught++; //add 1 to kids caught
+	// 		}
+
+
+	print(kidsCaught);
 	//BOTTOM SCOREBOARD
 	//catchpen 
 	fill(255);
 	stroke('black');
 	strokeWeight(5);
-	catcherPen = rect(width-(width/4), height-(height/10), width/4-5,height/10-5);
-	
-	//caught
+	catcherPen = rect(width - (width / 4), height - (height / 10), width / 4 - 5, height / 10 - 5);
+	fill(0);
+	textSize(24);
+	strokeWeight(1);
+	text('Kids Caught: ' + kidsCaught + '/' + (totalKids), width - width / 4 + 30, height - (height / 10) + 40);
+
 
 
 }
+
+//CLASSES
 
 class Father {
 	constructor(x, y, h, w) {
@@ -127,7 +167,7 @@ class Father {
 	}
 
 	hit(player) {
-		if (Math.abs(this.position.x - player.position.x) < this.size / 2 + player.size / 2 && Math.abs(this.position.y - player.position.y) < this.size / 2 + player.size / 2) return true;
+		if (Math.abs(this.x - player.x) < this.size / 2 + player.size / 2 && Math.abs(this.y - player.y) < this.size / 2 + player.size / 2) return true;
 	}
 
 
@@ -174,24 +214,72 @@ class Kid {
 		}
 	}
 }
-function makesprites() {
-	kidsprites = new Group();
+
+
+//FUNCTIONS
+function dadMovements() {
+	//Dad movement
+	if (keyIsDown(LEFT_ARROW)) {
+		dad.x -= 5;
+	}
+	if (keyIsDown(RIGHT_ARROW)) {
+		dad.x += 5;
+	}
+	if (keyIsDown(UP_ARROW)) {
+		dad.y -= 5;
+	} else if (keyIsDown(DOWN_ARROW)) {
+		dad.y += 5;
+	}
 
 }
 
-function allkidscaught() {
-	switch (maze) {
-		case 1:
-			if (count == LevelOneKids.length) {}
-			break;
-case 2:
-			if (count == LevelTwoKids.length) {}
-			break;
-
-case 3:
-			if (count == LevelThreeKids.length) {}
-			break;
+function kidMovements(){
+	//children movement
+	for (let i = 0; i < Children.length; i++) {
+		Children[i].display();
+	}
+	for (let i = 0; i < Horizontal.length; i++) {
+		Horizontal[i].bouncesidemove();
+	}
+	for (let i = 0; i < Vertical.length; i++) {
+		Vertical[i].bounceverticalmove();
+	}
+	for (let i = 0; i < Patrol.length; i++) {
+		Patrol[i].patrollermove();
 	}
 }
+
+// function makesprites() {
+// 	kidsprites = new Group();
+
+// }
+
+function kidIsCaught(){
+	Children.remove();
+	kidsCaught++;
+}
+
+function switchLevelScheck() { //controls the level boundaries of kids caught per level
+}
+
+function congratsScreen() {
+	background('#30FF3B');
+	textSize(36);
+	fill(0);
+	text('You Win!', width / 2 - (48 * 2), height / 2); //pixels per 36 size text is 48
+	textSize(24);
+	fill(255);
+	text('Total Kids: ' + totalKids + '/' + (totalKids), width / 2 - (32 * 2 + 50), 400);
+}
+
+function addMaze() {
+	obstacles = new Group();
+	for (var i = 0; i < totalLevelWalls; i++) {
+		var wall = createSprite(random(125, width - 125), (height / 5) * i, random(10, 150), random(10, 150)); //randomize size, location and shape
+		obstacles.shapeColor = color(0);
+		obstacles.add(wall);
+	}
+}
+
 
 
