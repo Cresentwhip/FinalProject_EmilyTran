@@ -1,132 +1,169 @@
 let dad, kid;
-let Children = [];
-let Vertical = [];
-let Horizontal = [];
-let Patrol = [];
+// let Children = [];
+// let Vertical = [];
+// let Horizontal = [];
+// let Patrol = [];
 let sideboundary, verticalboundary;
 let xdirection = 1;
 let ydirection = 1;
 let kidsCaught;
-let levelOneKids = [];
-let levelTwoKids = [];
-let levelThreeKids = [];
+// let levelOneKids = [];
+// let levelTwoKids = [];
+// let levelThreeKids = [];
 let obstacles, walls;
+let success;
+let endRunners;
+
+
+//Kid setup variables
+let ChildrenMove = [];
+let ChildrenLevelAssignment = [];
+let KiddosImg = [];
 
 //Maze Options
-let totalLevelWalls = 10;
+let totalLevelWalls = 30;
 let levelsTotal = 3;
+let timerValue = 60; //60 seconds per level
+let timeLimit = 60;
 
 
 //GOALS
-let totalKids = 15; //max kids to pick up
-let lastmaze = 3;
+let totalKids = 20; //max kids to pick up
 
 function preload() {
-
+	kiddo1 = loadImage('kiddo.png');
+	kiddo2 = loadImage('kiddo2.png');
+	kiddo3 = loadImage('kiddo3.png');
 }
+
 
 function setup() {
 
 	background('gray');
 	createCanvas(windowWidth, windowHeight);
-	frameRate(120);
+	// frameRate(120);
+	setInterval(timeCountdown, 1000); //set countdown timer via function timerCountdown in seconds
 
 	//Starting components
 	kidsCaught = 0; //start with 0 kids picked up
 	levelmaze = 1; //start at level 1
+	success = false;
 
-	//maze setup
-	sideboundary = width - 50 - width / 4; //prevents stuckage
+	//maze dimension setup
+	sideboundary = width - 50 - width / 4; //prevents stuckage per boundary of creation
 	verticalboundary = height - height / 10;
 	addMaze();
 
 
+	//Create kids
+	KiddosImg = [kiddo1, kiddo2, kiddo3];
+	children = new Group();
+	vertical = new Group();
+	horizontal = new Group();
+	patrol = new Group();
+	levelOneKids = new Group();
+	levelTwoKids = new Group();
+	levelThreeKids = new Group();
+	for (var i = 0; i < totalKids; i++) {
+		var k = createSprite(random(50, sideboundary), random(100, verticalboundary), 50, 50);
+		k.addImage(random(KiddosImg));
+		children.add(k);
+	}
 
 	//movement & level assignment
-	for (let i = 0; i < totalKids; i++) { //create  kids on the screen per level
-		Children.push(new Kid(random(50, sideboundary), random(70, verticalboundary - 40), 25));
-		Children[i].choice = int(random(1, 4)); //asign movement beforehand
-		Children[i].levelAssignment = int(random(1, 4)); //asign movement beforehand
+	for (let i = 0; i < children.length; i++) { //create  kids on the screen per level
+		ChildrenMove[i] = int(random(1, 4)); //asign movement beforehand
+		ChildrenLevelAssignment[i] = int(random(1, 4)); //asign movement beforehand
 
 		//MOVEMENT
-		if (Children[i].choice == 1) {
-			Vertical.push(Children[i]);
-		} else if (Children[i].choice == 2) {
-			Horizontal.push(Children[i]);
+		if (ChildrenMove[i] == 1) {
+			vertical.add(children[i]);
+		} else if (ChildrenMove[i] == 2) {
+			horizontal.add(children[i]);
 		} else {
-			Patrol.push(Children[i]);
+			patrol.add(children[i]);
 		}
 
 		//LEVEL
-		if (Children[i].levelAssignment == 1) {
-			levelOneKids.push(Children[i]);
-		} else if (Children[i].levelAssignment == 2) {
-			levelTwoKids.push(Children[i]);
+		if (ChildrenLevelAssignment[i] == 1) {
+			levelOneKids.add(children.get(i));
+		} else if (ChildrenLevelAssignment[i] == 2) {
+			levelTwoKids.add(children.get(i));
 		} else {
-			levelThreeKids.push(Children[i]);
+			levelThreeKids.add(children.get(i));
 		}
 
-		dad = new Father(0, 0, 25, 100); //draw father sprite
+		dad = createSprite(0, 0, 25, 100); //draw father sprite
+		dad.shapeColor = color('red');
 	}
 
+	dad = createSprite(0, 0, 25, 100); //draw father sprite
+	dad.shapeColor = color('red');
+	
+	//end animation
+	animedad= createSprite(-600, height-height/10-25, 25, 100);
+	animedad.shapeColor = color ('red');
+	endRunners = new Group();
+	endRunners.add(animedad); //add the dad with same sizing
+	for (var z = 0; z < 4; z++) { //cute ending animation
+		var kd = createSprite(-400 + 100*z, height-height/10, 50, 50);
+		kd.addImage(random(KiddosImg));
+		endRunners.add(kd);
+	}
+	
 }
 
 function draw() {
-// 	switch (kidsCaught) {
-// 		case levelOneKids.length:
-// 			addMaze();
 
-// 			makesprites();
-// 			checkKids();
-// 			break;
-// 		case levelTwoKids.length:
-// 			addMaze();
-// 			makesprites();
+	// 	switch (kidsCaught) {
+	// 		case levelOneKids.length:
+	// 			addMaze();
 
-// 			checkKids();
-// 			break;
-// 		case levelThreeKids.length:
-// 			addMaze();
-// 			makesprites();
+	// 			drawSprites();
+	// 			checkKids();
+	// 			break;
+	// 		case levelTwoKids.length:
+	// 			addMaze();
+	// 			makesprites();
 
-// 			checkKids();
-// 			break;
+	// 			checkKids();
+	// 			break;
+	// 		case levelThreeKids.length:
+	// 			addMaze();
+	// 			makesprites();
 
-// 		case totalKids:
-// 			congratsScreen();
-// 			break;
-// 		default:
+	// 			checkKids();
+	// 			break;
 
-// 	}
+	// 		case totalKids:
+	// 			congratsScreen();
+	// 			break;
+	// 		default:
+
+	// 	}
 
 
 
-	//Drawing
+	//Drawing 
 	background('gray');
-	dad.display();
-	// makesprites();
 
 
 	dadMovements();
 	kidMovements();
 
-	for (let i = 0; i < Children.length; i++) {
-		if (dad.hit(Children[i]) == true) {
-			kidsCaught++;
-		}
-	}
 
-// 	if (kidsCaught == levelOneKids){
-// 	// dad.overlap(Children, kidIsCaught);
-// 	}
+
+	//if touched, the wall, cannot pass through
+	dad.collide(obstacles);
+
+
+
+	// capture mechanism
+	dad.overlap(children, kidIsCaught);
+
 
 	drawSprites();
-	// if (dad.collide(Children,)) { //if kid collides with dad
-	// 		kidsCaught++; //add 1 to kids caught
-	// 		}
 
-
-	print(kidsCaught);
 	//BOTTOM SCOREBOARD
 	//catchpen 
 	fill(255);
@@ -136,126 +173,81 @@ function draw() {
 	fill(0);
 	textSize(24);
 	strokeWeight(1);
-	text('Kids Caught: ' + kidsCaught + '/' + (totalKids), width - width / 4 + 30, height - (height / 10) + 40);
+	text('Kids Caught:' + kidsCaught + '/' + (totalKids), width - width / 4 + 30, height - (height / 10) + 40);
 
 
+	
+	timerSetting();
+
+	if (kidsCaught == totalKids) {
+		congratsScreen();
+	}
+	
 
 }
 
-//CLASSES
-
-class Father {
-	constructor(x, y, h, w) {
-		this.x = random(x); //random location
-		this.y = random(y);
-		this.height = h;
-		this.width = w;
-
-		this.r = int(random(255));
-		this.g = int(random(255));
-		this.b = int(random(255));
-		this.skin = color(this.r, this.g, this.b);
+function dadMovements() {
+	//Dad movement
+	if (keyIsDown(LEFT_ARROW)) {
+		dad.position.x -= 5;
 	}
-
-	display() {
-		fill(this.skin);
-		rect(this.x, this.y, this.height, this.width);
+	if (keyIsDown(RIGHT_ARROW)) {
+		dad.position.x += 5;
 	}
-
-	hiding() {
-		//if collide with spot, sprite changes, and if kid is on it, capture=true
+	if (keyIsDown(UP_ARROW)) {
+		dad.position.y -= 5;
+	} else if (keyIsDown(DOWN_ARROW)) {
+		dad.position.y += 5;
 	}
-
-	hit(player) {
-		if (Math.abs(this.x - player.x) < this.size / 2 + player.size / 2 && Math.abs(this.y - player.y) < this.size / 2 + player.size / 2) return true;
-	}
-
 
 }
 
 
-class Kid {
-	constructor(xx, yy, size) {
-		this.x = xx;
-		this.y = yy;
-		this.size = size;
 
-		this.r = int(random(255));
-		this.g = int(random(255));
-		this.b = int(random(255));
-		this.skin = color(this.r, this.g, this.b);
-	}
-
-	display() {
-		fill(this.skin);
-		square(this.x, this.y, this.size);
-
-	}
-
-	bouncesidemove() {
-		this.x = this.x + ((1) * xdirection); //reversal of direction when touch wall
-		if (this.x > width - this.size || this.x < 0) {
+function kidMovements() {
+	//children movement
+	for (let i = 0; i < horizontal.length; i++) {
+		horizontal[i].position.x = horizontal[i].position.x + ((1) * xdirection); //reversal of direction when touch wall
+		if (horizontal[i].position.x > windowWidth - 50 || horizontal[i].position.x < 25) {
 			xdirection *= -1;
 		}
+		
+		// if (dad.position.x <= abs(horizontal[i].position.x + 5) ){ //tried to add a function of speed as dad gets nearer, but didnt work. ALSO, add "&& dad.position.y <= abs(horizontal[i].position.y + 5)" to make fun bouncing so may develop later for fun
+		// 	children[i].velocity.x = +2;
+		// } else{
+		// 	children[i].velocity.x = 0;
+		// }
 	}
 
-	bounceverticalmove() {
-		this.y = this.y + ((1) * ydirection); //reversal of direction when touch wall
-		if (this.y > height - this.size-100 || this.y < 0) {
+	for (let i = 0; i < vertical.length; i++) {
+		vertical[i].position.y = vertical[i].position.y + ((1) * ydirection); //reversal of direction when touch wall
+		if (vertical[i].position.y > windowHeight - 50 || vertical[i].position.y < 25) {
 			ydirection *= -1;
 		}
 	}
 
-	patrollermove() {
-		if (this.x <= width) {
-			this.x++;
+
+
+	for (let i = 0; i < patrol.length; i++) {
+		if (patrol[i].position.x <= windowWidth) {
+			patrol[i].position.x++;
 		} else {
-			this.x = 0
+			patrol[i].position.x = 0;
 		}
 	}
+	
+	//avoid dad
+// 	for (let i = 0; i < children.length; i++) { 
+// 		if (dad.position.x = children[i].position.x ){
+// 			children[i].velocity.x = 0.5;
+// 		}
+// 	}
 }
 
 
-//FUNCTIONS
-function dadMovements() {
-	//Dad movement
-	if (keyIsDown(LEFT_ARROW)) {
-		dad.x -= 5;
-	}
-	if (keyIsDown(RIGHT_ARROW)) {
-		dad.x += 5;
-	}
-	if (keyIsDown(UP_ARROW)) {
-		dad.y -= 5;
-	} else if (keyIsDown(DOWN_ARROW)) {
-		dad.y += 5;
-	}
 
-}
-
-function kidMovements(){
-	//children movement
-	for (let i = 0; i < Children.length; i++) {
-		Children[i].display();
-	}
-	for (let i = 0; i < Horizontal.length; i++) {
-		Horizontal[i].bouncesidemove();
-	}
-	for (let i = 0; i < Vertical.length; i++) {
-		Vertical[i].bounceverticalmove();
-	}
-	for (let i = 0; i < Patrol.length; i++) {
-		Patrol[i].patrollermove();
-	}
-}
-
-// function makesprites() {
-// 	kidsprites = new Group();
-
-// }
-
-function kidIsCaught(){
-	Children.remove();
+function kidIsCaught(dad, kiddying) {
+	kiddying.remove();
 	kidsCaught++;
 }
 
@@ -270,16 +262,55 @@ function congratsScreen() {
 	textSize(24);
 	fill(255);
 	text('Total Kids: ' + totalKids + '/' + (totalKids), width / 2 - (32 * 2 + 50), 400);
+	
+	for (var i = 0; i < 4+1; i++) { //cute ending animation
+		if (endRunners[i].position.x <= windowWidth) {
+    endRunners[i].velocity.x = 5;
+  }
+  if (endRunners[i].position.x > windowWidth) {
+    endRunners[i].position.x = -200;
+  }
+	}
+	drawSprites(endRunners);
 }
 
-function addMaze() {
-	obstacles = new Group();
-	for (var i = 0; i < totalLevelWalls; i++) {
-		var wall = createSprite(random(125, width - 125), (height / 5) * i, random(10, 150), random(10, 150)); //randomize size, location and shape
-		obstacles.shapeColor = color(0);
-		obstacles.add(wall);
+function loseScreen() {
+	background('red');
+	textSize(36);
+	fill(255);
+	text('You Lose!', width / 2 - (48 * 2), height / 2); //pixels per 36 size text is 48
+	textSize(24);
+	fill(255);
+	text('Total Kids: ' + kidsCaught + '/' + (totalKids), width / 2 - (32 * 2 + 50), 400);
+}
+
+function timerSetting() {
+	fill('Red');
+	stroke(color('red'));
+	
+	if (timerValue >= 10) {
+		text("Timer: 0:" + timerValue, width - (width / 10), height - (height / 10) + 40);
+	}
+	if (timerValue < 10) { //prevents weird change in formatting with 0:9 versus 0:09
+		text('Timer: 0:0' + timerValue, width - 80, height - (height / 10) + 20);
+	}
+	if (timerValue == 0) {
+		loseScreen();
 	}
 }
 
+function timeCountdown() {
+	if (timerValue > 0) {
+		timerValue--;
+	}
+}
 
+function addMaze() {
+
+	obstacles = new Group();
+	for (var i = 0; i < totalLevelWalls; i++) {
+		var wall = createSprite((sideboundary / 8) * i / 2, random(125, verticalboundary), random(10, 150), random(10, 150)); //randomize size, location and shape
+		obstacles.add(wall);
+	}
+}
 
