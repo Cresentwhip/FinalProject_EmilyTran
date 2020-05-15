@@ -1,0 +1,57 @@
+//end animation
+	animedad= createSprite(-600, height-height/10-25, 25, 100);
+	animedad.shapeColor = color ('red');
+	endRunners = new Group();
+	endRunners.add(animedad); //add the dad with same sizing
+	for (var z = 0; z < 4; z++) { //cute ending animation
+		var kd = createSprite(-400 + 100*z, height-height/10, 50, 50);
+		kd.addImage(random(KiddosImg));
+		endRunners.add(kd);
+	}
+
+	//movement & level assignment
+	for (let i = 0; i < children.length; i++) { //create  kids on the screen per level
+		ChildrenMove[i] = int(random(1, 4)); //asign movement beforehand
+		ChildrenLevelAssignment[i] = int(random(1, 4)); //asign movement beforehand
+
+		//MOVEMENT
+		if (ChildrenMove[i] == 1) {
+			vertical.add(children[i]);
+		} else if (ChildrenMove[i] == 2) {
+			horizontal.add(children[i]);
+		} else {
+			patrol.add(children[i]);
+		}
+
+		//LEVEL
+		if (ChildrenLevelAssignment[i] == 1) {
+			levelOneKids.add(children.get(i));
+		} else if (ChildrenLevelAssignment[i] == 2) {
+			levelTwoKids.add(children.get(i));
+		} else {
+			levelThreeKids.add(children.get(i));
+		}
+
+
+		//children movement
+	for (let i = 0; i < horizontal.length; i++) {
+		horizontal[i].position.x = horizontal[i].position.x + ((1) * xdirection); //reversal of direction when touch wall
+		if (horizontal[i].position.x > windowWidth - 50 || horizontal[i].position.x < 25) {
+			xdirection *= -1;
+		}
+		for (let i = 0; i < vertical.length; i++) {
+		vertical[i].position.y = vertical[i].position.y + ((1) * ydirection); //reversal of direction when touch wall
+		if (vertical[i].position.y > windowHeight - 50 || vertical[i].position.y < 25) {
+			ydirection *= -1;
+		}
+	}
+
+
+
+	for (let i = 0; i < patrol.length; i++) {
+		if (patrol[i].position.x <= windowWidth) {
+			patrol[i].position.x++;
+		} else {
+			patrol[i].position.x = 0;
+		}
+	}
